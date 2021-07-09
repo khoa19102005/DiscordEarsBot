@@ -340,31 +340,28 @@ function speak_impl(voice_Connection, mapKey) {
 function process_commands_query(txt, mapKey, user) {
     if (txt && txt.length) {
         let val = guildMap.get(mapKey);
-        val.text_Channel.send(user.username + ': ' + txt)
+        const https = require('https');
+        https.get('https://api.simsimi.net/v1/?text=' + txt + '&lang=vi_VN', res => {
+          let data = [];
+          const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
+          console.log('Status Code:', res.statusCode);
+          console.log('Date in Response header:', headerDate);
+
+          res.on('data', chunk => {
+            data.push(chunk);
+          });
+
+          res.on('end', () => {
+            console.log('Response ended: ');
+            const ans = JSON.parse(Buffer.concat(data).toString());
+            console.log(ans.success);
+          });
+        }).on('error', err => {
+          console.log('Error: ', err.message);
+        });
+        val.text_Channel.send('Chip: ' + ans.success);
     }
 }
-
-function simans(txt){
-    const https = require('https');
-    url = 'https://api.simsimi.net/v1/?text='+txt'&lang=vi_VN';
-    https.get(url, res => {
-      let data = [];
-      const headerDate = res.headers && res.headers.date ? res.headers.date : 'no response date';
-      console.log('Status Code:', res.statusCode);
-      console.log('Date in Response header:', headerDate);
-
-      res.on('data', chunk => {
-        data.push(chunk);
-      });
-
-      res.on('end', () => {
-        console.log('Response ended: ');
-        const ans = JSON.parse(Buffer.concat(data).toString());
-        console.log(`${ans.success}`);
-      });
-    }).on('error', err => {
-      console.log('Error: ', err.message);
-    });
 
 
 //////////////////////////////////////////
